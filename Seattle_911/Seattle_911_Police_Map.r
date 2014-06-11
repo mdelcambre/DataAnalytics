@@ -27,6 +27,11 @@ if(!file.exists(file_loc)){
     cat("## Date Downloaded", as.character(Sys.Date()),'\n',file=file_loc,append=T)
 }
 
+# Setup the output folder for the images we are plotting
+if(!file.exists("output")){
+    dir.create("output")
+}
+
 # Read the file into memory, last I checked this file is about 200 MB. May need to start subsampling
 # Then remove the NA columns for lat lon.
 data <- read.csv(file=file_loc, header=T, comment.char="#")
@@ -36,13 +41,10 @@ data <- data[complete.cases(data["Latitude"],data["Longitude"]),]
 # Center for the Google Map
 center <- sapply(c(data["Latitude"],data["Longitude"]),mean)
 
-
 # Setup Colors from Green to Red.
 # Add transparency
 colors <- rev(colorRampPalette(brewer.pal(11, 'RdYlGn'))(500))
 colors_a <-alpha(colors,0.5)
-
-
 
 # Loop through each of the crime categories. Create a heatmap for each one and save them as a new png file.
 for (crime in levels(data[["Event.Clearance.Group"]])){
@@ -55,7 +57,7 @@ for (crime in levels(data[["Event.Clearance.Group"]])){
 
     # Open file png file, escape name, ideal for unix machines, will still break on windows.
     crime = gsub("([/])","", crime)
-    png(paste("Seattle Police 911_",crime,".png",sep=""), width = 1280, height = 1280)
+    png(paste("output/Seattle Police 911_",crime,".png",sep=""), width = 1280, height = 1280)
     
     # Setup the Google map centered on all data.
     map <- GetMap(center=center, SCALE=2, zoom=11)
