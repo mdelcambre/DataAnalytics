@@ -23,7 +23,7 @@ if(!file.exists("data")){
 file_url <- "https://data.seattle.gov/api/views/3k2p-39jp/rows.csv?accessType=DOWNLOAD"
 file_loc <- "./data/seattle_911_police_response.csv"
 if(!file.exists(file_loc)){
-    download.file(file_location,destfile=file_loc,method="curl")
+    download.file(file_url,destfile=file_loc,method="curl")
     cat("## Date Downloaded", as.character(Sys.Date()),'\n',file=file_loc,append=T)
 }
 
