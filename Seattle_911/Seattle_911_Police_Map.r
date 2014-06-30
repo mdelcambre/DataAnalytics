@@ -40,10 +40,11 @@ data <- read.csv(file=file_loc, header=T, comment.char="#", na.strings = "NULL",
 
 # Clean up the dataset, remove leading and trailing white space and remove empty location data.
 data[["Event.Clearance.Group"]] <- as.factor(gsub("^\\s+|\\s+$", "",data[["Event.Clearance.Group"]]))
+data[["Event.Clearance.Description"]] <- as.factor(gsub("^\\s+|\\s+$", "",data[["Event.Clearance.Description"]]))
 data <- data[complete.cases(data["Latitude"],data["Longitude"]),]
 
 # Center for the Google Map
-center <- sapply(c(data["Latitude"],data["Longitude"]),mean)
+center <- sapply(c(data["Latitude"],data["Longitude"]),function(x) (max(x)+min(x))/2)
 
 # Setup the Google map centered on all data.
 map <- GetMap(center=center, SCALE=2, zoom=11)
@@ -55,14 +56,14 @@ lims <- unlist(LatLon2XY.centered(map, lims[,1],lims[,2]))
 
 # Setup Colors from Green to Red.
 # Add transparency
-colors <- rev(colorRampPalette(brewer.pal(8, 'RdYlGn'))(16))
+colors <- rev(colorRampPalette(brewer.pal(8, 'RdYlGn')(16)))
 colors_a <-alpha(colors,0.5)
 
 # Loop through each of the crime categories. Create a heatmap for each one and save them as a new png file.
-for (crime in levels(data[["Event.Clearance.Group"]])){
+for (crime in levels(data[["Event.Clearance.Description"]])){
     
     # Create temporary data frame with only the crime of interest
-    data_temp <- data[data[["Event.Clearance.Group"]] %in% crime,]
+    data_temp <- data[data[["Event.Clearance.Description"]] %in% crime,]
     
 
     if (length(data_temp$Longitude)==0) { next } # if no values, skip no next
