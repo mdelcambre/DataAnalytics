@@ -49,14 +49,15 @@ dframe <- dframe[complete.cases(dframe$grade,dframe$district),]
 
 # Add a column for FIPS code-district and then match the grade into the ploys dataframe.
 dframe[["st_district"]] <- paste(state.fips[match(dframe[["state"]],state.fips$abb),"fips"],dframe[["district"]], sep="-")
-polys$ret_rate <- dframe[match(paste(as.numeric(polys$STATEFP10),as.numeric(polys$CD111FP),sep="-"),dframe$st_district),"grade"]
+polys$grade <- dframe[match(paste(as.numeric(polys$STATEFP10),as.numeric(polys$CD111FP),sep="-"),dframe$st_district),"grade"]
 
 # colors<-rev(brewer.pal(5,"RdYlGn")) # Not colorblind friendly
 colors <- rev(c('#ffffcc','#c2e699','#78c679', '#31a354', '#006837')) # Green -> Yellow Color blind friendly
 
-png("output/NSA_Grade.png")
+png("output/NSA_Grade.png",width = 4000, height = 4000)
 
 # Plot the map using the colors, limiting to lover 48
-plot(polys,group=polys$grade,col=colors,xlim=c(-125,-65.5),ylim=c(24.2,49.7))
-
+plot(polys,col=colors,xlim=c(-180,-65.5))#,ylim=c(24.2,49.7))
+title("Stand Against Spying Congressional Scorecard",cex.main=1.5)
+legend(-102,52,c('A','B','C','D','F'),fill=colors,horiz=T,cex=0.75)
 dev.off()
