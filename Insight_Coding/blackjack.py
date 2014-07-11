@@ -58,7 +58,6 @@ class deck_of_cards:
     ]
 
     clean_deck = []
-    
     "Assembles the class base deck from the arrays above."
     for i in cards:
         for j in suits:
@@ -93,43 +92,59 @@ class deck_of_cards:
         return value
 
 
-class hand:
-
+class dealer:
+    'Implements the base player class as the dealer, keeps track of hands'
+    
     def __init__(self,deck):
-        self.cards = deck.deal(2)
+        self.cards = deck.deal(1)
 
     def cheat(self,hand):
+        'A function used for testing, allows for setting the hand'
         self.cards = hand
 
     def hand(self):
+        'Returns the current hand'
         return self.cards
 
     def value(self):
-        ace = 0
-        value = 0
+        'Calculate the value of the hand, automatically handle aces'
+        value = sum(i[1] for i in self.cards)
+        
+       """If any card is an ace, we check the total value of the hand, if the 
+       hand has a value of less than 12, then we can add the addition value to 
+       the hand. It is impossible for two aces to have a value of 11"""
         for i in self.cards:
             if i[0] == "Ace":
-                ace += 1
-                value += 1
-            else:
-                value += i[1]
-            
-        if value < 12 and ace != 0:
-            value += 10
-
+                if value < 12 and ace != 0:
+                    value += 10 # Ace has already been counted for 1 point
         return value
 
     def hit(self,deck):
+        """Implements hitting, deals a card from the passed in deck and returns
+        the new hand"""
         self.cards.extend(deck.deal(1))
         return self.cards
 
+    def new_deal(self.deck):
+        self.cards = deck.deal(1)
 
+class player(dealer):
+    'Extends the dealer class to implement betting commands and track chips'
 
+    def __init__(self,deck):
+        self.cards = deck.deal(2)
+        self.chips = 100
 
+    def bet(self,bet):
+        if bet > self.chips:
+            return -1
+        self.chips -= bet
+        return self.chips
+    
+    def chips(self):
+        return self.chips
 
-
-
-
-
+    def new_deal(self.deck):
+        self.cards = deck.deal(2)
 
 
