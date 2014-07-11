@@ -1,7 +1,19 @@
 #!/usr/bin/env python
 
 """ Blackjack Game for the coding challenge submitted as round 2 of the Data 
-Engineering Fellowship program."""
+Engineering Fellows program.
+
+Prompt:
+
+Insight Data Engineering Fellows Program - Coding Challenge
+
+We'd like you to implement a text-based Blackjack program in one of the 
+following programming languages: Java, Clojure, Scala, C, C++, Python, or Ruby. 
+There should be one player and one dealer. The dealer should hit until his hand 
+value is 17 or greater. You should implement the basic actions of hitting and 
+standing. Implementing the more advanced actions such as splitting is optional. 
+The player should start with 100 chips and must bet at least 1 chip each hand.
+"""
 
 
 import random
@@ -18,6 +30,11 @@ __status__ = "Prototype"
 
 
 class deck_of_cards:
+    """Implements the deck of cards for blackjack.
+    Assembles a deck and shuffles it. After you can shuffle, deal multiple cards
+    and compute the minimum total value of the deck (to detect when you need to
+    reshuffle the deck)"""
+    
     cards = [
         ("Ace",1),
         ("Two",2),
@@ -42,13 +59,14 @@ class deck_of_cards:
 
     clean_deck = []
     
+    "Assembles the class base deck from the arrays above."
     for i in cards:
         for j in suits:
             clean_deck.append(i+(j,))
 
     
     def __init__(self):
-        """Initiate the deck of cards, shuffle them,
+        """Copy the deck of cards from the class variable., shuffle them,
         and set the number of cards dealt to zero"""
         self.deck = deck_of_cards.clean_deck
         random.shuffle(self.deck)
@@ -73,6 +91,45 @@ class deck_of_cards:
     def value(self):
         value = sum(i[1] for i in self.deck[self.dealt:])
         return value
+
+
+class hand:
+
+    def __init__(self,deck):
+        self.cards = deck.deal(2)
+
+    def cheat(self,hand):
+        self.cards = hand
+
+    def hand(self):
+        return self.cards
+
+    def value(self):
+        ace = 0
+        value = 0
+        for i in self.cards:
+            if i[0] == "Ace":
+                ace += 1
+                value += 1
+            else:
+                value += i[1]
+            
+        if value < 12 and ace != 0:
+            value += 10
+
+        return value
+
+    def hit(self,deck):
+        self.cards.extend(deck.deal(1))
+        return self.cards
+
+
+
+
+
+
+
+
 
 
 
