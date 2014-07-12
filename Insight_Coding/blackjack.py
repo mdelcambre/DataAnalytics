@@ -65,7 +65,7 @@ class deck_of_cards:
 
     
     def __init__(self):
-        """Copy the deck of cards from the class variable., shuffle them,
+        """Copy the deck of cards from the clean class variable, shuffle them,
         and set the number of cards dealt to zero"""
         self.deck = deck_of_cards.clean_deck
         random.shuffle(self.deck)
@@ -93,10 +93,13 @@ class deck_of_cards:
 
 
 class dealer:
-    'Implements the base player class as the dealer, keeps track of hands'
+    """Implements the base player class as the dealer, keeps track of hand.
+    Functions have support for splitting for the player child class to extend"""
     
     def __init__(self,deck):
-        self.cards = deck.deal(1)
+        'Initialize the dealer: Deal one card to the hand'
+        self.deck = deck
+        self.cards = [self.deck.deal(1),]
 
     def cheat(self,hand):
         'A function used for testing, allows for setting the hand'
@@ -108,43 +111,66 @@ class dealer:
 
     def value(self):
         'Calculate the value of the hand, automatically handle aces'
-        value = sum(i[1] for i in self.cards)
-        
-       """If any card is an ace, we check the total value of the hand, if the 
-       hand has a value of less than 12, then we can add the addition value to 
-       the hand. It is impossible for two aces to have a value of 11"""
-        for i in self.cards:
-            if i[0] == "Ace":
-                if value < 12 and ace != 0:
-                    value += 10 # Ace has already been counted for 1 point
-        return value
+        total=[0,0]
+        for i in range(0,len(self.cards)):
+            total[i] = sum(j[1] for j in self.cards[i])
+            """If any card is an ace, we check the total value of the hand, if 
+            the hand has a value of less than 12, then we can add the addition 
+            value to the hand. It is impossible for two aces to have a value of 
+            11"""
+            for card in self.cards[i]:
+                if card[0] == "Ace":
+                    if total[i] < 12:
+                        total[i] += 10 #Ace has already been counted for 1 point
+        return total
 
-    def hit(self,deck):
-        """Implements hitting, deals a card from the passed in deck and returns
-        the new hand"""
-        self.cards.extend(deck.deal(1))
+    def hit(self,hand):
+        """Implements hitting, deals a card from the stored deck and places into
+        the given hand index."""
+        self.cards[hand].extend(self.deck.deal(1))
         return self.cards
 
-    def new_deal(self.deck):
-        self.cards = deck.deal(1)
+    def new_deal(self):
+        'Replaces the current hand with a newly dealt hand of 1 card'
+        self.cards = [self.deck.deal(1),] #stored in array for player splitting
 
 class player(dealer):
     'Extends the dealer class to implement betting commands and track chips'
 
-    def __init__(self,deck):
-        self.cards = deck.deal(2)
-        self.chips = 100
+    def __init__(self,deck,chips):
+        """Initiates the player child class of dealer andsets chips to the 
+        value passed in."""
+        self.deck = deck
+        self.chips = chips
+        self.cards = [[],]
 
     def bet(self,bet):
+        'Bets chips, returns the current value of chips or -1 if not enough'
         if bet > self.chips:
             return -1
         self.chips -= bet
         return self.chips
     
     def chips(self):
+        'Returns the number of chips the player currently has'
         return self.chips
 
-    def new_deal(self.deck):
-        self.cards = deck.deal(2)
+    def new_deal(self):
+        'Replaces the current hand with a newly dealt hand of 2 card'
+        self.cards = [self.deck.deal(2),] #stored in array for splitting later
+
+    def split(self,bet):
+        """Checks for proper conditions and then splits the hand, dealing one
+        to each of the two new hands"""
+        if bet > self.chips: # check if sufficent funds
+            return -1
+        if self.cards[0][0][0] != self.cards[0][1][0]: #are they the same card?
+            return -2
+        self.chips -= bet
+        self.cards = [
+                [self.cards[0][0],self.deck.deal(1)[0]],
+                [self.cards[0][1],self.deck.deal(1)[0]],
+        ]
+        return (self.cards,self.chips)
 
 
