@@ -364,7 +364,7 @@ def dealer_actions(bet):
     # Store the players score, but busts are stored as 0
     user_score = map(lambda x: 0 if x >21 else x, user.value())
 
-    #comp.hit(0)
+    comp.hit(0)
 
     while comp.value() < 18 and sum(user_score) >0:
         clear_line()
