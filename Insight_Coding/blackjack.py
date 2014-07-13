@@ -17,7 +17,7 @@ The player should start with 100 chips and must bet at least 1 chip each hand.
 
 
 import random
-
+from time import sleep
 
 __author__ = "Mark Delcambre"
 __copyright__ = "Copyright 2014, Mark Delcambre"
@@ -98,7 +98,6 @@ class dealer:
     def __init__(self,deck):
         'Initialize the dealer: Deal one card to the hand'
         self.deck = deck
-        self.cards = [self.deck.deal(1),]
 
     def cheat(self,hand):
         'A function used for testing, allows for setting the hand'
@@ -151,8 +150,9 @@ class player(dealer):
         self.chips -= bet
         return self.chips
 
-    def win(self,chips):
+    def win(self,winnings):
         'Adds to the chips value after a bet'
+        self.chips += winnings
 
     def bank(self):
         'Returns the number of chips the player currently has'
@@ -231,6 +231,7 @@ def new_deal():
     # Check to make sure the deck has enough value to bust three hands
     if deck.cards() < 21: #worst case 20 cards is needed to establish a winner
         print "Deck has too few cards, reshuffling"
+        clear_line()
         deck.shuffle()
 
 
@@ -241,8 +242,12 @@ def new_deal():
 
         # Validate that input is a positive intiger and does not exceed the bank
         if bet.isdigit() is False or int(bet) < 0:
-            print "Not Valid Input."
+            print "Not Valid Input"
             continue    # Not valid try for input again
+        elif int(bet) == 0:
+            print "You must bet at least 1 chip"
+            continue
+
         if user.bet(int(bet)) < 0:
             print "You do not have enough chips to make that bet"
             continue    # Too big of a bet, try again
@@ -251,12 +256,20 @@ def new_deal():
     bet = int(bet)
 
     user.new_deal() # Now that we have established the bet, deal the cards
+    comp.new_deal() # After player gets cards, dealer now gets its
     clear_line()    # print a pretty line
 
-    user.cheat([[('Queen', 10, 'Diamonds'), ('Queen', 10, 'Hearts')],])
+    print_screen()
+    player_actions(bet)
+    sleep(1)
+    dealer_actions(bet)
 
-    print "The Dealer hand: %s\n" % (fancy_print(comp.hand()[0]))
-    print "Your hand:       %s\n" % (fancy_print(user.hand()[0]))
+
+
+def player_actions(bet):
+    global user
+    global comp
+    global deck
 
     split_hand = 0 #Used as the index for which hand is currently being played.
     while True: # This is the player action loops
@@ -268,7 +281,7 @@ def new_deal():
                 continue
             else: # Either only one hand or second of split hands
                 print "You have 21 points."
-                break
+                return 0
         elif user.value()[split_hand] > 21:
             if split_hand < len(user.hand())-1:
                 print "Your first hand has busted. Switching to second hand"
@@ -276,7 +289,7 @@ def new_deal():
                 continue
             else:
                 print "You have busted."
-                break
+                return 0
 
         # Check if split is valid, need the face to match and have enough chips
         if user.hand()[0][0][0] is user.hand()[0][1][0] and \
@@ -288,13 +301,13 @@ def new_deal():
                 clear_line()
                 print "You have chosen to stand."
                 clear_line()
-                break
+                return 0
             elif action.lower().strip() == 'hit':
                 clear_line()
                 print "You have hit."
                 clear_line()
-                print "The Dealer hand: %s\n" % (fancy_print(comp.hand()[0]))
-                print "Your hand: %s\n" % (fancy_print(user.hit()[0]))
+                user.hit(split_hand)
+                print_screen()
             elif action.lower().strip() == 'split':
                 if user.split(bet) < 0:
                     print "You can't split right now."
@@ -302,9 +315,7 @@ def new_deal():
                 clear_line()
                 print "Splitting"
                 clear_line()
-                print "The Delear hand is: %s\n" % (fancy_print(comp.hand()[0]))
-                print "Your first hand is: %s" % (fancy_print(user.hand()[0]))
-                print "Your split hand is: %s\n" % (fancy_print(user.hand()[1]))
+                print_screen()
                 continue
             else:
                 print "I'm sorry, I didn't understand you."
@@ -330,27 +341,86 @@ def new_deal():
                 continue
             else:
                 print "You have chosen to stand, dealers play now."
-                break
+                return 0
 
         # Handle Hitting on current hand
         elif action.lower().strip()[0] is 'h':
             clear_line()
             print "You have hit."
             clear_line()
-            print "The dealer hand: %s\n" % (fancy_print(comp.hand()[0]))
-            if len(user.hand()) is 2 and split_hand is 0:
-                print "Your first hand is: %s" % (fancy_print(user.hit(0)[0]))
-                print "Your split hand is: %s\n" % (fancy_print(user.hand()[1]))
-            elif len(user.hand()) is 2 and split_hand is 1:
-                print "Your first hand is: %s" % (fancy_print(user.hand()[0]))
-                print "Your split hand is: %s\n" % (fancy_print(user.hit(1)[1]))
-            else:
-                print "Your hand is: %s\n" % (fancy_print(user.hit(0)[0]))
+            user.hit(split_hand)
+            print_screen()
 
         # Input didn't hit any of our actions, repeat the loop.
         else:
             print "I'm sorry, I didn't understand you."
             continue
+
+
+def dealer_actions(bet):
+    global user
+    global comp
+
+    # Store the players score, but busts are stored as 0
+    user_score = map(lambda x: 0 if x >21 else x, user.value())
+
+    #comp.hit(0)
+
+    while comp.value() < 18 and sum(user_score) >0:
+        clear_line()
+        print "Dealer Hits"
+        clear_line()
+        comp.hit()
+        print_screen()
+        sleep(0.7)
+
+    clear_line()
+    print "Dealer Stays"
+    clear_line()
+    print_screen()
+    sleep(1)
+
+    comp_score = 0 if comp.value()[0] > 21 else comp.value()[0]
+
+    clear_line()
+
+    for i in range(0,len(user.hand())):
+
+        if len(user.hand()) == 2:
+            hand = ' first ' if i == 1 else ' split '
+        else:
+            hand = ' '
+
+        if user_score[i] > comp_score:
+            print ("Your%shand beat the dealer." % (hand)),
+            if user_score[i] == 21 and len(user.hand()[i]) == 2:
+                user.win(int(bet*3.5))
+                print "BLACKJACK You win %d chips" %(int(bet*3.5))
+            else:
+                user.win(2*bet)
+                print "You win %d chips" % (int(bet*2))
+        elif user_score[i] == 21 and\
+                len(user.hand()[i]) == 2 and\
+                len(comp.hand()[0]) > 2:
+            user.win(int(bet*3.5))
+            print "Your%shand beat the dealer. BLACKJACK. You win %d chips"\
+                    % (hand,int(bet*3.5))
+        else:
+             print "Your%shand lost to the dealer" % (hand)
+
+
+def print_screen():
+    global user
+    global comp
+
+    print "The dealer hand: %s\n" % (fancy_print(comp.hand()[0]))
+    if len(user.hand()) is 2:
+        print "Your first hand is: %s" % (fancy_print(user.hand()[0]))
+        print "Your split hand is: %s\n" % (fancy_print(user.hand()[1]))
+    else:
+        print "Your hand is: %s\n" % (fancy_print(user.hand()[0]))
+
+
 
 
 def clear_line():
@@ -369,9 +439,7 @@ def fancy_print(hand):
 
 main()
 
-
-
-    
+ 
 
 
 
