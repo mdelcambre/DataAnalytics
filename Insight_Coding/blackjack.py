@@ -394,7 +394,7 @@ def dealer_actions(bet):
     print "Dealer deciding..."
     sleep(1)
     # While the dealer has less than 18 points, hit
-    while comp.value()[0] < 17 and sum(user_score) >0:
+    while comp.value()[0] < 17:
         comp.hit(0)
         print_screen("Dealer Hits")
         print "Dealer deciding..."
