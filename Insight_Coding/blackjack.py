@@ -276,7 +276,8 @@ def new_deal():
     player_actions(bet)
     sleep(1)
     dealer_actions(bet)
-
+    sleep(1)
+    end_of_round(bet)
 
 
 def player_actions(bet):
@@ -379,7 +380,7 @@ def player_actions(bet):
 
 def dealer_actions(bet):
     """Handles the dealer actions. Dealer hits to 17 unless player has busted
-    on all hands. After deal has played, handles the end game scoring"""
+    on all hands."""
     global user
     global comp
 
@@ -389,21 +390,33 @@ def dealer_actions(bet):
     # Deal the 2nd card to the dealer.
     comp.hit(0)
     print_screen("Dealer's play now")
+    print "Dealer deciding..."
     sleep(1)
     # While the dealer has less than 18 points, hit
     while comp.value()[0] < 17 and sum(user_score) >0:
         comp.hit(0)
         print_screen("Dealer Hits")
+        print "Dealer deciding..."
         sleep(0.7) # slight pause to see what is going on.
 
     print_screen("Dealer Stays.")
-    sleep(1)
+    print "End of Round: Computing scores"
 
-    comp_score = 0 if comp.value()[0] > 21 else comp.value()[0]
+def end_of_round(bet):
+    'Handles the end of the round scoring and handles bets paying back'
+
+    global user
+    global comp
 
     clear_line()
+    # Store the score, but busts are stored as 0
+    user_score = map(lambda x: 0 if x >21 else x, user.value())
+    comp_score = 0 if comp.value()[0] > 21 else comp.value()[0]
 
+    # Handle each hand to see if it won
     for i in range(0,len(user.hand())):
+
+        # Setup the hand variable for easier printing later.
         if len(user.hand()) == 2:
             hand = ' first ' if i == 0 else ' split '
         else:
@@ -429,6 +442,7 @@ def dealer_actions(bet):
         else: # if we tie, even with a tied blackjack, you lose.
              print "Your%shand lost to the dealer" % (hand)
     clear_line()
+
 
 def print_screen(message):
     global user
