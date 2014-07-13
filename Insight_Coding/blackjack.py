@@ -202,6 +202,7 @@ def main():
 
             # Check player input, whitespace stripped and only check first char
             if again.lower().strip()[0] is 'y':
+                deck.shuffle()
                 user.__init__(deck,start_chips)
                 comp.__init__(deck)
             elif again.lower().strip()[0] is 'n':
