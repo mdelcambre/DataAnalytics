@@ -265,7 +265,7 @@ def new_deal():
 
         # If we have made it this far, we know the bet has been valid and exit
         print "You have %d chips remaining" % (user.bank())
-        break 
+        break
 
     bet = int(bet)
 
