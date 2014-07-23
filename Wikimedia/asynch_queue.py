@@ -61,6 +61,13 @@ The queue handler thread could be rewritten to run until the queue is empty and
 then quit. If you still want to be able to have new queue items added to an
 empty queue, this could be handled easily by the task callback function with
 simple logic.
+
+However, it is noted that the queue looper thread is no longer needed in this
+implementation. The task callback function could check if we need to spawn a
+new task from the queue, or if the queue is empty and it is the last one it
+would call the queue callback function. The looper is from an earlier setup
+where the code kept track of threading.threads_active(). This was changed to
+the current setup over concerns of inteference from the code calling Queue.
 """
 
 import threading        # for threading the tasks that currently being run
