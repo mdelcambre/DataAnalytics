@@ -163,8 +163,10 @@ class Queue():
         # All threads have finished and no more in queue, stop running and run
         # queue callback
         self.running = False
-        self.qcallback()
-
+        try:
+            self.qcallback()
+        except:
+            pass # Supllied callback failed. No error handling, but continue run
     def start(self):
         """Starts executing items in the queue."""
 
