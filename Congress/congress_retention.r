@@ -50,7 +50,12 @@ dframe <- dframe[-nrow(dframe),]
 dframe[["st_district"]] <- paste(state.fips[match(substr(dframe[["Location.1"]],1,2),state.fips$abb),"fips"],dframe[["district"]], sep="-")
 dframe[["retention.rate"]] <- as.numeric(sub("%", "", dframe[["retention.rate"]]))
 
-polys$ret_rate <- dframe[match(paste(as.numeric(polys$STATEFP10),as.numeric(polys$CD111FP),sep="-"),dframe$st_district),"retention.rate"]
+polys$grade <- as.factor(dframe[match(paste(as.numeric(levels(polys$STATEFP10))[polys$STATEFP10],as.numeric(levels(polys$CD111FP))[polys$CD111FP],sep="-"),dframe$st_district),"grade"])
+
+
+polys$ret_rate <- dframe[match(paste(as.numeric(levers(polys$STATEFP10))[polys$STATEFP10],as.numeric(levels(polys$CD111FP))[polys$CD111FP],sep="-"),dframe$st_district),"retention.rate"]
+
+
 
 plot(polys,col=pal(100)[findInterval(polys$ret_rate,1:100)],xlim=c(-125,-65.5),ylim=c(24.2,49.7))
 

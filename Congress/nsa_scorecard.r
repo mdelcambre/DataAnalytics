@@ -45,7 +45,7 @@ if(!file.exists("output")){
 # Read the file into memory, last I checked this file is about 200 MB. May need to start subsampling
 # Read the csv file into memory, and remove nulls and senetors.
 dframe <- read.csv(file=file_loc, header=T, comment.char="#", na.strings = "?", skipNul=T, stringsAsFactors=F)
-dframe <- dframe[complete.cases(dframe$grade,dframe$district),] 
+dframe <- dframe[complete.cases(dframe$grade,dframe$district),]
 
 # Add a column for FIPS code-district and then match the grade into the ploys dataframe.
 dframe[["st_district"]] <- paste(state.fips[match(dframe[["state"]],state.fips$abb),"fips"],dframe[["district"]], sep="-")
